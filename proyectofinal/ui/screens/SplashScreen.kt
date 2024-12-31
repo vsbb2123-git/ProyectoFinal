@@ -25,40 +25,37 @@ import androidx.compose.ui.draw.alpha
 import androidx.navigation.NavController
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
-    @Composable
-    fun SplashScreen(navController: NavController) {
-        /// Animación para la transparencia
-        val alphaAnimation = rememberInfiniteTransition(label = "")/// no se por que me pide poner el label, pero si no me da errores
-        val alpha = alphaAnimation.animateFloat(
-            initialValue = 1f,
-            targetValue = 0.6f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
-            ), label = "" /// no se por que me pide poner el label, pero si no me da errores
-        )
+fun SplashScreen(navController: NavController) {
+    /// Animación para la transparencia
+    val alphaAnimation = rememberInfiniteTransition(label = "")/// no se por que me pide poner el label, pero si no me da errores
+    val alpha = alphaAnimation.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(750, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = "" /// no se por que me pide poner el label, pero si no me da errores
+    )
 
-        LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(1000L) /// 1 sec de delay
-            navController.navigate(Routes.MainScreen.route)
-        }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(2000L) /// 1 sec de delay
+        navController.navigate(Routes.MainScreen.route)
+    }
 
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center
+
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle, /// desde aqui se cambia el icono
+            contentDescription = "Splash Icon",
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
-
-        ) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle, /// desde aqui se cambia el icono
-                contentDescription = "Splash Icon",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(100.dp)
-                    .alpha(alpha.value)
-            )
-        }
+                .size(100.dp)
+                .alpha(alpha.value)
+        )
     }
 }

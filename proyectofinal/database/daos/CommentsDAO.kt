@@ -26,7 +26,7 @@ interface CommentsDAO {
     INNER JOIN games ON comments.idGame = games.id
     WHERE comments.idUser = :userId
 """)
-    fun getCommentsByUser(userId: Int): Flow<List<FullComment>>
+    fun getCommentsByUser(userId: Int): List<FullComment>
 
     @Query("""
         SELECT comments.id, 
@@ -41,7 +41,7 @@ interface CommentsDAO {
         INNER JOIN games ON comments.idGame = games.id
         WHERE comments.idGame = :gameId
     """)
-    fun getCommentsByGame(gameId: Int): Flow<List<FullComment>>
+    fun getCommentsByGame(gameId: Int): List<FullComment>
 
     @Query("DELETE FROM comments WHERE id = :id")
     fun deleteCommentById(id: Int)

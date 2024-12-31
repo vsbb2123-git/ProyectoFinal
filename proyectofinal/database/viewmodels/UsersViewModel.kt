@@ -6,11 +6,14 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
 import com.vsantamaria.proyectofinal.database.entities.Users
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class UsersViewModel(private val usersDao: UsersDAO) : ViewModel() {
-    val allUsers: Flow<List<Users>> = usersDao.getAllUsers()
+class UsersViewModel(private val usersDao: UsersDAO) : ViewModel(){
+    fun getAllUsers(): List<Users> {
+        return usersDao.getAllUsers()
+    }
 
     fun insertUser(user: Users) {
         viewModelScope.launch {

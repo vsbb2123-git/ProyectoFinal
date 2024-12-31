@@ -7,8 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
-//import com.vsantamaria.proyectofinal.ui.screens.OnBoarding
 import com.vsantamaria.proyectofinal.ui.screens.MainScreen
+import com.vsantamaria.proyectofinal.ui.screens.OnBoarding
 import com.vsantamaria.proyectofinal.ui.screens.SplashScreen
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -24,11 +24,11 @@ fun Navigation(navController: NavHostController, usersDAO: UsersDAO) {
             SplashScreen(navController)
         }
 
-//        composable(
-//            route = Routes.OnBoarding.route
-//        ) {
-//            OnBoarding(navController)
-//        }
+        composable(
+            route = Routes.OnBoarding.route
+        ) {
+            OnBoarding(navController)
+        }
 
         composable(
             route = Routes.MainScreen.route

@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class CommentsViewModel(private val commentsDao: CommentsDAO) : ViewModel() {
-    fun getCommentsByUser(userId: Int): Flow<List<FullComment>> {
+    fun getCommentsByUser(userId: Int): List<FullComment> {
         return commentsDao.getCommentsByUser(userId)
     }
 
-    fun getCommentsByGame(gameId: Int): Flow<List<FullComment>> {
+    fun getCommentsByGame(gameId: Int): List<FullComment> {
         return commentsDao.getCommentsByGame(gameId)
     }
 

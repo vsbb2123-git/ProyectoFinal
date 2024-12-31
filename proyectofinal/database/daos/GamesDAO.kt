@@ -15,7 +15,7 @@ interface GamesDAO {
     fun getGameById(id: Int): Games
 
     @Query("SELECT * FROM games")
-    fun getAllGames(): Flow<List<Games>>
+    fun getAllGames(): List<Games>
 
     @Query("DELETE FROM games WHERE id = :id")
     fun deleteGameById(id: Int)

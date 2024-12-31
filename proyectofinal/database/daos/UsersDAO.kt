@@ -1,10 +1,12 @@
 package com.vsantamaria.proyectofinal.database.daos
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.vsantamaria.proyectofinal.database.entities.Users
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @Dao
 interface UsersDAO {
@@ -15,7 +17,7 @@ interface UsersDAO {
     fun getUserById(id: Int): Users?
 
     @Query("SELECT * FROM users")
-    fun getAllUsers(): Flow<List<Users>>
+    fun getAllUsers(): List<Users>
 
     @Query("SELECT * FROM users WHERE currentSession = 1 LIMIT 1")
     fun getCurrentSessionUser(): Users?
