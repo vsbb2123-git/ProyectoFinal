@@ -5,5 +5,5 @@ sealed class Routes(val route: String) {
     object OnBoarding : Routes("on_boarding")
     object MainScreen : Routes("main_screen")
     object AccountScreen : Routes("account_screen")
-    object ShoppingCartScreen : Routes("game_card_screen")
+    object GameCardScreen : Routes("Game_card_screen/{gameId}")
 }

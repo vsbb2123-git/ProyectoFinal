@@ -11,6 +11,11 @@ class GamesRepository (private val apiService: RawgApiService) {
     suspend fun getGames(page: Int, pageSize: Int): List<Game> {
         return apiService.getGames(page, pageSize).results
     }
-
+    suspend fun getGameDetails(id: String): Game {
+        val game = apiService.getGameDetails(id)
+        val screenshots = apiService.getGameScreenshots(id).results
+        game.screenshots = screenshots
+        return game
+    }
 
 }

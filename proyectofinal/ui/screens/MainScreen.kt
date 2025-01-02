@@ -20,7 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +40,7 @@ import com.vsantamaria.proyectofinal.ui.components.MyScaffold
 import com.vsantamaria.proyectofinal.ui.factories.MainScreenViewModelFactory
 import com.vsantamaria.proyectofinal.ui.viewmodels.MainScreenViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,8 +48,8 @@ import kotlinx.coroutines.withContext
 fun MainScreen(navController: NavController, usersDAO: UsersDAO) {
     /// Crear el GamesRepository
     val gamesRepository = GamesRepository(Client.retrofit.create(RawgApiService::class.java))
-
-    val logged = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var userLoggedIn by remember { mutableStateOf(false) }
     val factory = MainScreenViewModelFactory(gamesRepository) /// Se crea el Factory para el ViewModel
     val viewModel: MainScreenViewModel = viewModel(factory = factory) /// Se crea el ViewModel con el Factory
 
@@ -55,8 +58,10 @@ fun MainScreen(navController: NavController, usersDAO: UsersDAO) {
     val error by viewModel.error.observeAsState(null)
 
     LaunchedEffect(Unit) {
-        logged.value = withContext(Dispatchers.IO) {
-            usersDAO.getCurrentSessionUser() != null
+        scope.launch {
+            userLoggedIn = withContext(Dispatchers.IO) {
+                usersDAO.getCurrentSessionUser() != null
+            }
         }
     }
 
@@ -68,13 +73,13 @@ fun MainScreen(navController: NavController, usersDAO: UsersDAO) {
     MyScaffold(
         title = "Lista de Juegos", /// nombre pendiente de cambio
         navController = navController,
-        logged = logged.value /// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebas
+        logged = userLoggedIn /// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebas
     ) {
         if (isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize(),
-                contentAlignment = androidx.compose.ui.Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Cargando...",
@@ -82,7 +87,7 @@ fun MainScreen(navController: NavController, usersDAO: UsersDAO) {
                 )
             }
         } else if (error != null) {
-            Text("Error al cargar los datos: $error")
+            Text("Error: $error")
         } else if (games.isEmpty()) {
             Text("No se encontraron juegos.")
         }
@@ -92,7 +97,7 @@ fun MainScreen(navController: NavController, usersDAO: UsersDAO) {
             ) {
                 items(games) { game ->
                     GameCard(game = game, onClick = {
-                        navController.navigate("gameDetails/${game.id}")
+                        navController.navigate("Game_card_screen/${game.id}")
                     })
                 }
             }
@@ -105,7 +110,7 @@ fun GameCard(game: Game, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(0.85f)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -118,7 +123,7 @@ fun GameCard(game: Game, onClick: () -> Unit) {
             game.released?.let {
                 Text(
                     text = "Lanzamiento: $it",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
             game.background_image?.let { imageUrl ->

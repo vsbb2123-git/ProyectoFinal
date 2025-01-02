@@ -1,6 +1,5 @@
 package com.vsantamaria.proyectofinal.database.models
 
-
 data class FullComment(
     val id: Int,
     val idUser: Int,
