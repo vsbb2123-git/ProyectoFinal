@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.vsantamaria.proyectofinal.api.Client
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
+import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.screens.GameCardScreen
 import com.vsantamaria.proyectofinal.ui.screens.MainScreen
@@ -18,7 +19,7 @@ import com.vsantamaria.proyectofinal.ui.screens.SplashScreen
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun Navigation(navController: NavHostController, usersDAO: UsersDAO) {
+fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel) {
     NavHost(
         navController = navController,
         startDestination = Routes.SplashScreen.route
@@ -32,13 +33,13 @@ fun Navigation(navController: NavHostController, usersDAO: UsersDAO) {
         composable(
             route = Routes.OnBoarding.route
         ) {
-            OnBoarding(navController)
+            OnBoarding(navController,usersViewModel)
         }
 
         composable(
             route = Routes.MainScreen.route
         ) {
-            MainScreen(navController, usersDAO)
+            MainScreen(navController, usersViewModel)
         }
 
         composable(
@@ -49,7 +50,7 @@ fun Navigation(navController: NavHostController, usersDAO: UsersDAO) {
         ) { backStackEntry ->
             val gameId = backStackEntry.arguments?.getString("gameId")
             val gamesRepository = GamesRepository(Client.apiService)
-            GameCardScreen(navController,gamesRepository, usersDAO, gameId)
+            GameCardScreen(navController,gamesRepository, usersViewModel, gameId)
         }
 
 

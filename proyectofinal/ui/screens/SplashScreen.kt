@@ -26,15 +26,15 @@ import androidx.navigation.NavController
 
 @Composable
 fun SplashScreen(navController: NavController) {
-    /// Animación para la transparencia
-    val alphaAnimation = rememberInfiniteTransition(label = "")/// no se por que me pide poner el label, pero si no me da errores
-    val alpha = alphaAnimation.animateFloat(
+
+    val alphaAnimation = rememberInfiniteTransition(label = "")
+    val alpha = alphaAnimation.animateFloat( /// Animación para la transparencia
         initialValue = 1f,
         targetValue = 0.5f,
         animationSpec = infiniteRepeatable(
             animation = tween(750, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = "" /// no se por que me pide poner el label, pero si no me da errores
+        ), label = ""
     )
 
     LaunchedEffect(Unit) {

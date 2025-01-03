@@ -25,6 +25,9 @@ interface UsersDAO {
     @Query("UPDATE users SET currentSession = 1 WHERE id = :userId")
     fun loginUser(userId: Int)
 
+    @Query("UPDATE users SET currentSession = 0 WHERE id = :userId")
+    fun logoutUser(userId: Int)
+
     @Query("DELETE FROM users WHERE id = :id")
     fun deleteUserById(id: Int)
 }

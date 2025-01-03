@@ -35,6 +35,7 @@ import com.vsantamaria.proyectofinal.api.Client
 import com.vsantamaria.proyectofinal.api.RawgApiService
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
 import com.vsantamaria.proyectofinal.database.models.Game
+import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.components.MyScaffold
 import com.vsantamaria.proyectofinal.ui.factories.MainScreenViewModelFactory
@@ -45,35 +46,30 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController, usersDAO: UsersDAO) {
+fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
     /// Crear el GamesRepository
     val gamesRepository = GamesRepository(Client.retrofit.create(RawgApiService::class.java))
     val scope = rememberCoroutineScope()
     var userLoggedIn by remember { mutableStateOf(false) }
     val factory = MainScreenViewModelFactory(gamesRepository) /// Se crea el Factory para el ViewModel
     val viewModel: MainScreenViewModel = viewModel(factory = factory) /// Se crea el ViewModel con el Factory
-
     val games by viewModel.games.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val error by viewModel.error.observeAsState(null)
+    val currentUser by usersViewModel.getCurrentUser().observeAsState()
 
-    LaunchedEffect(Unit) {
-        scope.launch {
-            userLoggedIn = withContext(Dispatchers.IO) {
-                usersDAO.getCurrentSessionUser() != null
-            }
-        }
+    LaunchedEffect(currentUser) {
+        userLoggedIn = currentUser != null
     }
 
-    ///Se cargan los juegos cuando la pantalla se crea
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {///Se cargan los juegos cuando la pantalla se crea
         viewModel.fetchGames()
     }
 
     MyScaffold(
         title = "Lista de Juegos", /// nombre pendiente de cambio
-        navController = navController,
-        logged = userLoggedIn /// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebas
+        navController = navController,/// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebasusers
+        usersViewModel = usersViewModel
     ) {
         if (isLoading) {
             Box(

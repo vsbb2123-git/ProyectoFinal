@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -22,6 +23,7 @@ import com.vsantamaria.proyectofinal.api.translateText
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
 import com.vsantamaria.proyectofinal.database.models.Game
 import com.vsantamaria.proyectofinal.database.models.Screenshot
+import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.components.MyScaffold
 import kotlinx.coroutines.Dispatchers
@@ -29,19 +31,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun GameCardScreen(navController: NavController, gamesRepository: GamesRepository, usersDAO: UsersDAO, gameId: String?) {
+fun GameCardScreen(navController: NavController, gamesRepository: GamesRepository, usersViewModel: UsersViewModel, gameId: String?) {
     val scope = rememberCoroutineScope()
     var game by remember { mutableStateOf<Game?>(null) }
-    var userLoggedIn by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(Unit) {
-        scope.launch {
-            userLoggedIn = withContext(Dispatchers.IO) {
-                usersDAO.getCurrentSessionUser() != null
-            }
-        }
+    val currentUser by usersViewModel.getCurrentUser().observeAsState()
+    var userLoggedIn by remember { mutableStateOf(false) }
+
+    LaunchedEffect(currentUser) {
+        userLoggedIn = currentUser != null
     }
+
     LaunchedEffect(gameId) {
         if (gameId != null) {
             scope.launch {
@@ -64,7 +65,7 @@ fun GameCardScreen(navController: NavController, gamesRepository: GamesRepositor
     MyScaffold(
         title = game?.name ?: "Cargando juego...",
         navController = navController,
-        logged = userLoggedIn
+        usersViewModel = usersViewModel
     ) {
         if (isLoading) {
             Box(

@@ -28,7 +28,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.navigation.Routes
 
 
@@ -49,11 +52,17 @@ fun MyScaffold(
     modifier: Modifier = Modifier,
     title: String,
     navController: NavController,
-    logged: Boolean,
+    usersViewModel: UsersViewModel,
     content: @Composable () -> Unit
 ) {
     var showDDMenu by rememberSaveable { mutableStateOf(false) }
+    var logged by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
+    val currentUser by usersViewModel.getCurrentUser().observeAsState()
+
+    LaunchedEffect(currentUser) {
+        logged = currentUser != null
+    }
 
     Scaffold(
         topBar = {
@@ -99,18 +108,23 @@ fun MyScaffold(
                         )
                         if (logged) {
                             DropdownMenuItem(
-                                text = { Text("Cerrar Sesión") },
+                                text = { Text("Cerrar Sesión") },///asigna 0 al currentSession del user, cerrandole la sesion y vuelve a la pantalla principal
                                 onClick = {
-                                    /// Lógica para cerrar sesión
-                                    showDDMenu = false
+                                    currentUser?.let { user ->
+                                        usersViewModel.logout(user.id)
+                                        showDDMenu = false
+                                        navController.popBackStack()
+                                        navController.navigate(Routes.MainScreen.route)
+                                    }
                                 }
                             )
                         } else {
                             DropdownMenuItem(
                                 text = { Text("Iniciar Sesión") },
                                 onClick = {
-                                    navController.popBackStack()
-                                    navController.navigate(Routes.MainScreen.route)
+                                    showDDMenu = false
+                                    navController.navigate(Routes.OnBoarding.route)
+
                                 }
                             )
                         }
