@@ -28,8 +28,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +53,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.vsantamaria.proyectofinal.api.Client
 import com.vsantamaria.proyectofinal.api.RawgApiService
 import com.vsantamaria.proyectofinal.database.models.Game
+import com.vsantamaria.proyectofinal.database.models.Genre
+import com.vsantamaria.proyectofinal.database.models.Tag
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.components.MyScaffold
@@ -71,6 +76,44 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
     val currentUser by usersViewModel.getCurrentUser().observeAsState()
     var page by remember { mutableStateOf(1) }
     var pageSize by remember { mutableStateOf(20) }
+    var searchExpanded by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var genreQuery by remember { mutableStateOf("") }
+    var tagsQuery by remember { mutableStateOf("") }
+    var genreExpanded by remember { mutableStateOf(false) }
+    var selectedGenre by remember { mutableStateOf<Genre?>(null) }
+    var tagExpanded by remember { mutableStateOf(false) }
+    var selectedTag by remember { mutableStateOf<Tag?>(null) }
+
+    val genres = listOf(/// Lista con los generos
+        Genre("", "Ninguno"),
+        Genre("action", "Acción"),
+        Genre("indie", "Indie"),
+        Genre("adventure", "Aventura"),
+        Genre("strategy", "Estrategia"),
+        Genre("shooter", "Disparos"),
+        Genre("arcade", "Arcade"),
+        Genre("platformer", "Plataformas"),
+        Genre("fighting", "Lucha"),
+        Genre("sports", "Deportes"),
+        Genre("casual", "Casual")
+    )
+
+
+    val tags = listOf(/// Lista con las tags
+        Tag(0, "", "Ninguno"),
+        Tag(1, "singleplayer", "Un jugador"),
+        Tag(2, "multiplayer", "Multijugador"),
+        Tag(3, "atmospheric", "Atmosférico"),
+        Tag(4, "cooperative", "Cooperativo"),
+        Tag(5, "difficult", "Difícil"),
+        Tag(6, "survival", "Supervivencia"),
+        Tag(7, "comedy", "Comedia"),
+        Tag(8, "stealth", "Sigilo"),
+        Tag(9, "controller", "Mando"),
+        Tag(10, "zombies", "Zombis")
+    )
+
     LaunchedEffect(currentUser) {
         userLoggedIn = currentUser != null
     }
@@ -81,152 +124,272 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
 
     MyScaffold(
         title = "Lista de Juegos", /// nombre pendiente de cambio
-        navController = navController,/// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebasusers
+        navController = navController, /// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebasusers
         usersViewModel = usersViewModel
     ) {
-        if (isLoading) {
-            Box(
+
+        Column(modifier = Modifier.fillMaxSize()) {/// Barra de busqueda
+            Button(
+                onClick = { searchExpanded = !searchExpanded },
                 modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(10.dp)
             ) {
-                Text(
-                    text = "Cargando...",
-                    style = MaterialTheme.typography.headlineLarge
-                )
+                Text(if (searchExpanded) "Ocultar Búsqueda" else "Mostrar Búsqueda")
             }
-        } else if (error != null) {
-            Text("Error: $error")
-        } else if (games.isEmpty()) {
-            Text("No se encontraron juegos.")
-        }
-        else {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                LazyColumn(
+
+            if (searchExpanded) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.92f)
-                        .padding(6.dp)
+                        .padding(10.dp)
+                        .fillMaxHeight( 0.38f),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(games) { game ->
-                        GameCard(game = game, onClick = {
-                            navController.navigate("Game_card_screen/${game.id}")
-                        })
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        label = { Text("Buscar por nombre") },
+                        singleLine = true
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        ExposedDropdownMenuBox(///Géneros
+                            expanded = genreExpanded,
+                            onExpandedChange = { genreExpanded = !genreExpanded }
+                        ) {
+                            OutlinedTextField(
+                                value = selectedGenre?.nameSpanish ?: "Seleccionar",
+                                onValueChange = {},
+                                modifier = Modifier
+                                    .fillMaxWidth(0.5f),
+                                label = { Text("Género") },
+                                readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = genreExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = genreExpanded,
+                                onDismissRequest = { genreExpanded = false }
+                            ) {
+                                genres.forEach { genre ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            selectedGenre = genre
+                                            genreQuery = genre.nameEnglish
+                                            genreExpanded = false
+                                        },
+                                        text = { Text(genre.nameSpanish) }
+                                    )
+                                }
+                            }
+                        }
+
+                        ExposedDropdownMenuBox(///etiquetas
+                            expanded = tagExpanded,
+                            onExpandedChange = { tagExpanded = !tagExpanded }
+                        ) {
+                            OutlinedTextField(
+                                value = selectedTag?.nameSpanish ?: "Seleccionar",
+                                onValueChange = {},
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                label = { Text("Etiqueta") },
+                                readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = tagExpanded,
+                                onDismissRequest = { tagExpanded = false }
+                            ) {
+                                tags.forEach { tag ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            selectedTag = tag
+                                            tagsQuery = tag.nameEnglish
+                                            tagExpanded = false
+                                        },
+                                        text = { Text(tag.nameSpanish) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            viewModel.filterGamesByAll(
+                                search = searchQuery.ifEmpty { null },
+                                genre = genreQuery.ifEmpty { null },
+                                tags = tagsQuery.ifEmpty { null },
+                                page = page,
+                                pageSize = pageSize
+                            )
+                        },
+                    ) {
+                        Text("Buscar")
                     }
                 }
-                Spacer(modifier = Modifier.height(5.dp))///paginador
-                Row(
+            }
+            if (isLoading) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Button(
-                        onClick = {
-                            if (page > 1) {
-                                page -= 1
-                                viewModel.fetchGames(page, pageSize)
-                            }
-                        },
-                        enabled = page > 1,
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Anterior",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
-                        text = "Pág: $page",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        text = "Cargando...",
+                        style = MaterialTheme.typography.headlineLarge
                     )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = {
-                            page += 1
-                            viewModel.fetchGames(page, pageSize)
-                        },
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(40.dp)
+                }
+            } else if (error != null) {
+                Text("Error: $error")
+            } else if (games.isEmpty()) {
+                Text("No se encontraron juegos.")
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight((if (searchExpanded) 0.80f else 0.879f))
+                            .padding(6.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowForward,
-                            contentDescription = "Siguiente",
-                            modifier = Modifier.size(24.dp)
-                        )
+                        items(games) { game ->
+                            GameCard(game = game, onClick = {
+                                navController.navigate("Game_card_screen/${game.id}")
+                            })
+                        }
                     }
-
-                    Spacer(modifier = Modifier.width(30.dp))
-
-                    Text(
-                        text = "Juegos por pagina",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign=TextAlign.End,
+                    Spacer(modifier = Modifier.height(2.dp))///paginador
+                    Row(
                         modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .width(80.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.TopEnd)
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        var expanded by remember { mutableStateOf(false) }
-                        var selectedPageSize by remember { mutableStateOf(pageSize.toString()) }
-
+                        Spacer(modifier = Modifier.fillMaxWidth(0.05f))
                         Button(
-                            onClick = { expanded = true },
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(40.dp),
-                            shape = RoundedCornerShape(0.dp),
-                            contentPadding = PaddingValues(0.dp)
+                            onClick = {
+                                if (page > 1) {
+                                    page -= 1
+                                    viewModel.fetchGames(page, pageSize)
+                                }
+                            },
+                            enabled = page > 1,
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(40.dp)
                         ) {
-                            Text(
-                                text = selectedPageSize,
-                                style = MaterialTheme.typography.bodyLarge
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Anterior",
+                                modifier = Modifier.size(24.dp)
                             )
                         }
 
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            listOf(10, 20, 30, 40, 50).forEach { size ->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        pageSize = size
-                                        selectedPageSize = size.toString()
-                                        expanded = false
-                                        viewModel.fetchGames(page, pageSize)
+                        Spacer(modifier = Modifier.fillMaxWidth(0.04f))
 
-                                    },
-                                    text = {
-                                        Text("$size")
-                                    }
+                        Text(
+                            text = "Pág: $page",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+
+                        Spacer(modifier = Modifier.fillMaxWidth(0.04f))
+
+                        Button(
+                            onClick = {
+                                page += 1
+                                viewModel.fetchGames(page, pageSize)
+                            },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowForward,
+                                contentDescription = "Siguiente",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.fillMaxWidth(0.1f))///antes eran 30 dp
+
+                        Text(
+                            text = "Juegos por pagina",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .width(70.dp)
+                        )
+
+                        Spacer(modifier = Modifier.fillMaxWidth(0.1f))
+
+                        Box(
+                            modifier = Modifier
+                                .wrapContentSize(Alignment.TopEnd)
+                        ) {
+                            var expanded by remember { mutableStateOf(false) }
+                            var selectedPageSize by remember { mutableStateOf(pageSize.toString()) }
+
+                            Button(
+                                onClick = { expanded = true },
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .height(40.dp),
+                                shape = RoundedCornerShape(0.dp),
+                                contentPadding = PaddingValues(0.dp)
+                            ) {
+                                Text(
+                                    text = selectedPageSize,
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
+                            }
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                listOf(10, 20, 30, 40, 50).forEach { size ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            pageSize = size
+                                            selectedPageSize = size.toString()
+                                            expanded = false
+                                            viewModel.fetchGames(page, pageSize)
+
+                                        },
+                                        text = {
+                                            Text("$size")
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun GameCard(game: Game, onClick: () -> Unit) {

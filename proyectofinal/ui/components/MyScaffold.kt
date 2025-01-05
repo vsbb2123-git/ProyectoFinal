@@ -109,7 +109,7 @@ fun MyScaffold(
                             )
                         } else {
                             DropdownMenuItem(
-                                text = { Text("Iniciar Sesión / Registrarse") },
+                                text = {Text("Iniciar Sesión / Registrarse")},
                                 onClick = {
                                     showDDMenu = false
                                     navController.navigate(Routes.OnBoarding.route)
