@@ -105,7 +105,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
         Tag(3, "atmospheric", "Atmosférico"),
         Tag(4, "cooperative", "Cooperativo"),
         Tag(5, "difficult", "Difícil"),
-        Tag(6, "survival", "Supervivencia"),
+        Tag(6, "survival", "Survival"), ///se queda en ingés por que si no no cabe
         Tag(7, "comedy", "Comedia"),
         Tag(8, "stealth", "Sigilo"),
         Tag(9, "controller", "Mando"),
@@ -171,11 +171,12 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                 modifier = Modifier
                                     .fillMaxWidth(0.48f)
                                     .menuAnchor(),///NO TOCAR
-                                label = { Text("Género") },
+                                label = { Text("Género")},
                                 readOnly = true,
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = genreExpanded)
-                                }
+                                },
+                                textStyle = MaterialTheme.typography.bodyMedium
                             )
                             ExposedDropdownMenu(
                                 expanded = genreExpanded,
@@ -208,7 +209,8 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                 readOnly = true,
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagExpanded)
-                                }
+                                },
+                                textStyle = MaterialTheme.typography.bodyMedium
                             )
                             ExposedDropdownMenu(
                                 expanded = tagExpanded,
@@ -260,7 +262,14 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
             } else if (error != null) {
                 Text("Error: $error")
             } else if (games.isEmpty()) {
-                Text("No se encontraron juegos.")
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No se encontraron juegos", style = MaterialTheme.typography.headlineSmall)
+                }
             } else {
                 Column(
                     modifier = Modifier.fillMaxSize()
@@ -403,7 +412,6 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                             }
                         }
                     }
-
                 }
             }
         }
@@ -432,6 +440,9 @@ fun GameCard(game: Game, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             game.background_image?.let { imageUrl ->
                 Image(
                     painter = rememberAsyncImagePainter(imageUrl),

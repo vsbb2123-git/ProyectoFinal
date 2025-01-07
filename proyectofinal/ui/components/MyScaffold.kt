@@ -2,12 +2,12 @@ package com.vsantamaria.proyectofinal.ui.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -70,17 +70,24 @@ fun MyScaffold(
                 modifier = Modifier.background(MaterialTheme.colorScheme.primary),
                 title = {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(title)
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
+                        if(title!="Lista de Juegos"){
+                            IconButton(
+                                onClick = {
+                                    navController.popBackStack()
+                                    navController.navigate(Routes.MainScreen.route)
+                                }
+                            ){
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowBack,
+                                    contentDescription = "",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
                         }
+                        Text(title,color = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 actions = {
@@ -88,21 +95,14 @@ fun MyScaffold(
                     IconButton(onClick = { showDDMenu = !showDDMenu }) {
                         Icon(
                             imageVector = Icons.Default.Menu,
-                            contentDescription = "menu"
+                            contentDescription = "menu",
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     DropdownMenu(
                         expanded = showDDMenu,
                         onDismissRequest = { showDDMenu = false }
                     ) {
-
-                        DropdownMenuItem(
-                            text = { Text("Pagina principal") },
-                            onClick = {
-                                navController.popBackStack()
-                                navController.navigate(Routes.MainScreen.route)
-                            }
-                        )
 
                         if (logged) {
                             DropdownMenuItem(
@@ -134,18 +134,19 @@ fun MyScaffold(
 //                                navController.navigate(Routes.AccountScreen.route)
                             }
                         )
-
-                        DropdownMenuItem(
-                            text = { Text("Lista de favoritos") },
-                            onClick = {
-                                if (logged) {
-                                    navController.popBackStack()
-                                    navController.navigate(Routes.WishListScreen.route)
-                                }else{
-                                    showPopUp = true
+                        if(title!="Juegos favoritos") {
+                            DropdownMenuItem(
+                                text = { Text("Lista de favoritos") },
+                                onClick = {
+                                    if (logged) {
+                                        navController.popBackStack()
+                                        navController.navigate(Routes.WishListScreen.route)
+                                    } else {
+                                        showPopUp = true
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
 
                     }
                 }

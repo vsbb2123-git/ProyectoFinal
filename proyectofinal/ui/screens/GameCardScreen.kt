@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,9 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.vsantamaria.proyectofinal.api.translateText
+import com.vsantamaria.proyectofinal.database.entities.Comments
 import com.vsantamaria.proyectofinal.database.entities.Users
+import com.vsantamaria.proyectofinal.database.models.FullComment
 import com.vsantamaria.proyectofinal.database.models.Game
 import com.vsantamaria.proyectofinal.database.models.Screenshot
+import com.vsantamaria.proyectofinal.database.viewmodels.CommentsViewModel
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.components.MyScaffold
@@ -48,17 +52,12 @@ import com.vsantamaria.proyectofinal.ui.components.PopUpLogin
 import kotlinx.coroutines.launch
 
 @Composable
-fun GameCardScreen(navController: NavController, gamesRepository: GamesRepository, usersViewModel: UsersViewModel, gameId: String?) {
+fun GameCardScreen(navController: NavController, gamesRepository: GamesRepository, usersViewModel: UsersViewModel, commentsViewModel: CommentsViewModel, gameId: String?) {
     val scope = rememberCoroutineScope()
     var game by remember { mutableStateOf<Game?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     val currentUser by usersViewModel.getCurrentUser().observeAsState()
-    var userLoggedIn by remember { mutableStateOf(false) }
-
-    LaunchedEffect(currentUser) {
-        userLoggedIn = currentUser != null
-    }
 
     LaunchedEffect(gameId) {
         if (gameId != null) {
@@ -98,14 +97,14 @@ fun GameCardScreen(navController: NavController, gamesRepository: GamesRepositor
         } else if (error != null) {
             Text("Error: $error")
         }else {
-                GameDetails(game = game!!, currentUser = currentUser, usersViewModel = usersViewModel, navController = navController)
+                GameDetails(game!!, currentUser,  usersViewModel,  commentsViewModel,  navController)
         }
     }
 }
 
 
 @Composable
-fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel, navController: NavController) {
+fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel, commentsViewModel: CommentsViewModel, navController: NavController) {
     var showTranslation by remember { mutableStateOf(false) }
     var translatedDescription by remember { mutableStateOf<String?>(null) }
     var expanded by remember { mutableStateOf<Screenshot?>(null) }
@@ -114,9 +113,22 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
     var translatedTags by remember { mutableStateOf<String?>(null) }
     val isInWishList = remember { mutableStateOf(currentUser?.wishList?.contains(game.id) ?: false) }
     var showPopUp by remember { mutableStateOf(false) }
+    var commentText by remember { mutableStateOf("") }
+    val comments = remember { mutableStateOf(emptyList<FullComment>()) }
+    var hasCommented by remember { mutableStateOf(false) }
+    var isThisGameDeveloper by remember { mutableStateOf(false) }
+    var isDeveloper by remember { mutableStateOf(false) }
 
+    if (currentUser != null) {
+        isDeveloper = currentUser.userType == "Desarrollador"
+        isThisGameDeveloper = game.developers?.any { it.name == currentUser.username } == true
 
-    LaunchedEffect(game.genres) { /// Géneros traducidos con la API de Google
+        LaunchedEffect(currentUser.id, game.id) {
+            hasCommented = commentsViewModel.hasUserCommentedOnGame(currentUser.id, game.id)
+        }
+    }
+
+    LaunchedEffect(game.genres) { /// Géneros traducidos con la API de Google separados por ", "
         if (!game.genres.isNullOrEmpty()) {
             scope.launch {
                 translatedGenres = translateText(game.genres.joinToString(", ") { it.name })
@@ -124,13 +136,14 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
         }
     }
 
-    LaunchedEffect(game.tags) { /// Tags traducidas con la API de Google
+    LaunchedEffect(game.tags) { /// Tags traducidas con la API de Google separadas por ", "
         if (!game.tags.isNullOrEmpty()) {
             scope.launch {
                 translatedTags = translateText(game.tags.joinToString(", ") { it.name })
             }
         }
     }
+
     if (showPopUp) {
         PopUpLogin(
             navController = navController,
@@ -230,6 +243,15 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            if (!game.developers.isNullOrEmpty()) {
+                Text(
+                    text = "Desarrolladores: ${game.developers.joinToString(", ") { it.name }}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             if (!game.genres.isNullOrEmpty()) {
                 Text(
                     text = "Géneros: ${translatedGenres ?: ""}",
@@ -246,6 +268,8 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
                 )
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             Button(///boton lista de deseados
                 onClick = {
                     if (currentUser != null) {
@@ -255,8 +279,7 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
                             } else {
                                 usersViewModel.addToWishList(currentUser.id, game.id)
                             }
-                            isInWishList.value =
-                                !isInWishList.value  ///no se puede poner !isInWishList.value
+                            isInWishList.value = !isInWishList.value  ///no se puede poner !isInWishList.value
                         }
                     }else{
                         showPopUp = true
@@ -264,8 +287,46 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (isInWishList.value) "Quitar de la lista de deseados" else "Añadir a la lista de deseados")
+                Text(if (isInWishList.value) "Quitar juego de la lista de deseados" else "Añadir  juego a la lista de deseados")
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (currentUser == null) {///crear/guardar comentarios
+                Text("Inicia sesión para comentar", style = MaterialTheme.typography.bodyLarge)
+            } else if(hasCommented){
+                Text("Ya has escrito un comentario para este juego.", style = MaterialTheme.typography.bodyLarge)
+            } else if(isDeveloper && !isThisGameDeveloper ){
+                Text("No puedes comentar en este juego porque no eres uno de sus desarrolladores.", style = MaterialTheme.typography.bodyLarge)
+            }else {
+                TextField(
+                    value = commentText,
+                    onValueChange = { commentText = it },
+                    label = { Text("Añade un comentario") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        if (commentText.isNotBlank()) {
+                            scope.launch {
+                                val newComment = Comments(
+                                    idUser = currentUser.id,
+                                    idGame = game.id,
+                                    text = commentText
+                                )
+                                commentsViewModel.insertComment(newComment)
+                                comments.value = commentsViewModel.getCommentsByGame(game.id)
+                                commentText = ""
+                            }
+                            hasCommented=true
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Guardar comentario")
+                }
+            }
+
 
         }
 

@@ -5,26 +5,38 @@ import androidx.lifecycle.viewModelScope
 import com.vsantamaria.proyectofinal.database.daos.CommentsDAO
 import com.vsantamaria.proyectofinal.database.entities.Comments
 import com.vsantamaria.proyectofinal.database.models.FullComment
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class CommentsViewModel(private val commentsDao: CommentsDAO) : ViewModel() {
+
     fun getCommentsByUser(userId: Int): List<FullComment> {
-        return commentsDao.getCommentsByUser(userId)
+        return runBlocking(Dispatchers.IO) {
+            commentsDao.getCommentsByUser(userId)
+        }
     }
 
     fun getCommentsByGame(gameId: Int): List<FullComment> {
-        return commentsDao.getCommentsByGame(gameId)
+        return runBlocking(Dispatchers.IO) {
+            commentsDao.getCommentsByGame(gameId)
+        }
+    }
+
+    fun hasUserCommentedOnGame(userId: Int, gameId: Int): Boolean {
+        return runBlocking(Dispatchers.IO) {
+            commentsDao.hasUserCommentedOnGame(userId, gameId) > 0 ///si el usuario ha comentado, devuelve true
+        }
     }
 
     fun insertComment(comment: Comments) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             commentsDao.insertComment(comment)
         }
     }
 
     fun deleteComment(commentId: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             commentsDao.deleteCommentById(commentId)
         }
     }

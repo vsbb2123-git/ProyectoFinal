@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.vsantamaria.proyectofinal.api.Client
+import com.vsantamaria.proyectofinal.database.viewmodels.CommentsViewModel
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.screens.GameCardScreen
@@ -19,7 +20,7 @@ import com.vsantamaria.proyectofinal.ui.screens.WishListScreen
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel) {
+fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel, commentsViewModel: CommentsViewModel) {
     NavHost(
         navController = navController,
         startDestination = Routes.SplashScreen.route
@@ -56,9 +57,8 @@ fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel)
         ) { backStackEntry ->
             val gameId = backStackEntry.arguments?.getString("gameId")
             val gamesRepository = GamesRepository(Client.apiService)
-            GameCardScreen(navController,gamesRepository, usersViewModel, gameId)
+            GameCardScreen(navController,gamesRepository, usersViewModel, commentsViewModel, gameId)
         }
-
 
     }
 }

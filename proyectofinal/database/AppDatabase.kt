@@ -7,20 +7,17 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.vsantamaria.proyectofinal.database.converters.Converter
 import com.vsantamaria.proyectofinal.database.daos.CommentsDAO
-import com.vsantamaria.proyectofinal.database.daos.GamesDAO
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
 import com.vsantamaria.proyectofinal.database.entities.Comments
-import com.vsantamaria.proyectofinal.database.entities.Games
 import com.vsantamaria.proyectofinal.database.entities.Users
 
 @Database(
-    entities = [Users::class, Games::class, Comments::class],
-    version = 2
+    entities = [Users::class, Comments::class],
+    version = 3
 )
 @TypeConverters(Converter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usersDao(): UsersDAO
-    abstract fun gamesDao(): GamesDAO
     abstract fun commentsDao(): CommentsDAO
 
     companion object {

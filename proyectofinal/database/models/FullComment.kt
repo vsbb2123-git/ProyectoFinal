@@ -6,6 +6,5 @@ data class FullComment(
     val idGame: Int,
     val text: String,
     val date: Long,
-    val username: String,
-    val gameTitle: String
+    val username: String
 )
