@@ -6,7 +6,6 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
 import com.vsantamaria.proyectofinal.database.entities.Users
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -38,11 +37,26 @@ class UsersViewModel(private val usersDao: UsersDAO) : ViewModel(){
         }
     }
 
-    fun deleteUser(id: Int) {
-        viewModelScope.launch {
-            usersDao.deleteUserById(id)
+    fun addToWishList(userId: Int, gameId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = usersDao.getUserById(userId)
+            user?.let {
+                val updatedWishList = it.wishList.toMutableList().apply { add(gameId) }
+                usersDao.updateWishList(userId, updatedWishList)
+            }
         }
     }
+
+    fun removeFromWishList(userId: Int, gameId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = usersDao.getUserById(userId)
+            user?.let {
+                val updatedWishList = it.wishList.toMutableList().apply { remove(gameId) }
+                usersDao.updateWishList(userId, updatedWishList)
+            }
+        }
+    }
+
     fun logIn(username: String, password: String): String {
         return runBlocking(Dispatchers.IO) {
             val user = usersDao.getAllUsers().find { it.username == username && it.password == password }
@@ -83,6 +97,12 @@ class UsersViewModel(private val usersDao: UsersDAO) : ViewModel(){
             val newUser = Users(0, username, password, userType, true)///currenstession siempre tiene que ser true de primeras
             usersDao.insertUser(newUser)
             return@runBlocking ""
+        }
+    }
+
+    fun deleteUser(id: Int) {
+        viewModelScope.launch {
+            usersDao.deleteUserById(id)
         }
     }
 }

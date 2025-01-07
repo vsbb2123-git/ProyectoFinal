@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,11 +49,18 @@ fun MyScaffold(
     var logged by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val currentUser by usersViewModel.getCurrentUser().observeAsState()
+    var showPopUp by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentUser) {
         logged = currentUser != null
     }
 
+    if (showPopUp) {
+        PopUpLogin(
+            navController = navController,
+            onDismiss = { showPopUp = false }
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,6 +103,7 @@ fun MyScaffold(
                                 navController.navigate(Routes.MainScreen.route)
                             }
                         )
+
                         if (logged) {
                             DropdownMenuItem(
                                 text = { Text("Cerrar Sesión") },///asigna 0 al currentSession del user, cerrandole la sesion y vuelve a la pantalla principal
@@ -117,6 +126,7 @@ fun MyScaffold(
                                 }
                             )
                         }
+
                         DropdownMenuItem(
                             text = { Text("Cuenta") },
                             onClick = {
@@ -124,6 +134,19 @@ fun MyScaffold(
 //                                navController.navigate(Routes.AccountScreen.route)
                             }
                         )
+
+                        DropdownMenuItem(
+                            text = { Text("Lista de favoritos") },
+                            onClick = {
+                                if (logged) {
+                                    navController.popBackStack()
+                                    navController.navigate(Routes.WishListScreen.route)
+                                }else{
+                                    showPopUp = true
+                                }
+                            }
+                        )
+
                     }
                 }
             )

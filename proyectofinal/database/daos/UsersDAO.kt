@@ -1,12 +1,9 @@
 package com.vsantamaria.proyectofinal.database.daos
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.vsantamaria.proyectofinal.database.entities.Users
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @Dao
 interface UsersDAO {
@@ -27,6 +24,9 @@ interface UsersDAO {
 
     @Query("UPDATE users SET currentSession = 0 WHERE id = :userId")
     fun logoutUser(userId: Int)
+
+    @Query("UPDATE users SET wishList = :wishList WHERE id = :userId")
+    fun updateWishList(userId: Int, wishList: List<Int>)
 
     @Query("DELETE FROM users WHERE id = :id")
     fun deleteUserById(id: Int)

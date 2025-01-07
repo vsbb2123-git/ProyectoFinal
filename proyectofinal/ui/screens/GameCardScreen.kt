@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,11 +38,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.vsantamaria.proyectofinal.api.translateText
+import com.vsantamaria.proyectofinal.database.entities.Users
 import com.vsantamaria.proyectofinal.database.models.Game
 import com.vsantamaria.proyectofinal.database.models.Screenshot
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.components.MyScaffold
+import com.vsantamaria.proyectofinal.ui.components.PopUpLogin
 import kotlinx.coroutines.launch
 
 @Composable
@@ -95,31 +98,54 @@ fun GameCardScreen(navController: NavController, gamesRepository: GamesRepositor
         } else if (error != null) {
             Text("Error: $error")
         }else {
-                GameDetails(game = game!!)
+                GameDetails(game = game!!, currentUser = currentUser, usersViewModel = usersViewModel, navController = navController)
         }
     }
 }
 
 
 @Composable
-fun GameDetails(game: Game) {
+fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel, navController: NavController) {
     var showTranslation by remember { mutableStateOf(false) }
     var translatedDescription by remember { mutableStateOf<String?>(null) }
     var expanded by remember { mutableStateOf<Screenshot?>(null) }
     val scope = rememberCoroutineScope()
+    var translatedGenres by remember { mutableStateOf<String?>(null) }
+    var translatedTags by remember { mutableStateOf<String?>(null) }
+    val isInWishList = remember { mutableStateOf(currentUser?.wishList?.contains(game.id) ?: false) }
+    var showPopUp by remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(game.genres) { /// Géneros traducidos con la API de Google
+        if (!game.genres.isNullOrEmpty()) {
+            scope.launch {
+                translatedGenres = translateText(game.genres.joinToString(", ") { it.name })
+            }
+        }
+    }
+
+    LaunchedEffect(game.tags) { /// Tags traducidas con la API de Google
+        if (!game.tags.isNullOrEmpty()) {
+            scope.launch {
+                translatedTags = translateText(game.tags.joinToString(", ") { it.name })
+            }
+        }
+    }
+    if (showPopUp) {
+        PopUpLogin(
+            navController = navController,
+            onDismiss = { showPopUp = false }
+        )
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = game.name,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            game.background_image?.let { imageUrl ->
+            game.background_image?.let { imageUrl ->///imagen de fondo
                 Image(
                     painter = rememberAsyncImagePainter(imageUrl),
                     contentDescription = null,
@@ -129,10 +155,23 @@ fun GameDetails(game: Game) {
                     contentScale = ContentScale.Crop
                 )
             }
-            Row(
+
+            if (game.screenshots?.isNotEmpty() == true) {///capturas
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(game.screenshots!!) { screenshot ->
+                        ScreenshotCard(
+                            screenshot = screenshot,
+                            onClick = {///si la captura pulsada no esta ampliada, el onclick la amplia, si no, la amplia
+                                expanded = if (expanded == screenshot) null else screenshot
+                            }
+                        )
+                    }
+                }
+            }
+
+            Row(///descripcion
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -166,7 +205,7 @@ fun GameDetails(game: Game) {
                 Text(
                     text = if (showTranslation) {
                         val cutTranslatedDescription = extractBeforeWord(translatedDescription ?: "Traduciendo...", word = "Español")
-                        android.text.Html.fromHtml(
+                        android.text.Html.fromHtml(///para que no se vean cosas tipo <p> por que la api trae un texto en formato html
                             cutTranslatedDescription,
                             android.text.Html.FROM_HTML_MODE_COMPACT
                         ).toString()
@@ -182,26 +221,52 @@ fun GameDetails(game: Game) {
                 )
             }
 
+            Spacer(modifier = Modifier.height(14.dp))
+
             Text(
-                text = "Calificación: ${game.rating ?: "N/A"}",
+                text = "Calificación: ${game.rating ?: "N/A"}/5",
                 style = MaterialTheme.typography.bodyLarge
             )
-            if (game.screenshots?.isNotEmpty() == true) {
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            if (!game.genres.isNullOrEmpty()) {
                 Text(
-                    text = "Capturas de pantalla",
-                    style = MaterialTheme.typography.headlineSmall
+                    text = "Géneros: ${translatedGenres ?: ""}",
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(game.screenshots!!) { screenshot ->
-                        ScreenshotCard(
-                            screenshot = screenshot,
-                            onClick = {///si la captura pulsada no esta ampliada, el onclick la amplia, si no, la amplia
-                                expanded = if (expanded == screenshot) null else screenshot
-                            }
-                        )
-                    }
-                }
             }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            if (!game.tags.isNullOrEmpty()) {
+                Text(
+                    text = "Etiquetas: ${translatedTags ?: ""}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            Button(///boton lista de deseados
+                onClick = {
+                    if (currentUser != null) {
+                        scope.launch {
+                            if (isInWishList.value) {
+                                usersViewModel.removeFromWishList(currentUser.id, game.id)
+                            } else {
+                                usersViewModel.addToWishList(currentUser.id, game.id)
+                            }
+                            isInWishList.value =
+                                !isInWishList.value  ///no se puede poner !isInWishList.value
+                        }
+                    }else{
+                        showPopUp = true
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (isInWishList.value) "Quitar de la lista de deseados" else "Añadir a la lista de deseados")
+            }
+
         }
 
         if (expanded != null) { ///para cuando se amplíe una captura
@@ -231,7 +296,6 @@ fun ScreenshotCard(screenshot: Screenshot, onClick: () -> Unit) {
         contentDescription = null,
         modifier = Modifier
             .size(150.dp)
-            .padding(8.dp)
             .clickable { onClick() },
         contentScale = ContentScale.Crop
     )

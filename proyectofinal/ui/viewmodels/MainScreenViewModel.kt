@@ -33,6 +33,20 @@ class MainScreenViewModel(private val gamesRepository: GamesRepository) : ViewMo
         }
     }
 
+    fun filterGamesByAll(search: String? = null, genre: String? = null, tags: String? = null, page: Int, pageSize: Int) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            try {
+                val filteredGames = gamesRepository.getFilteredGames(search, genre, tags, page, pageSize)
+                _games.postValue(filteredGames)
+            } catch (e: Exception) {
+                _error.postValue("Error al aplicar filtros: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
     fun searchGames(search: String, page: Int, pageSize: Int) {
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -75,17 +89,5 @@ class MainScreenViewModel(private val gamesRepository: GamesRepository) : ViewMo
         }
     }
 
-    fun filterGamesByAll(search: String? = null, genre: String? = null, tags: String? = null, page: Int, pageSize: Int) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            try {
-                val filteredGames = gamesRepository.getFilteredGames(search, genre, tags, page, pageSize)
-                _games.postValue(filteredGames)
-            } catch (e: Exception) {
-                _error.postValue("Error al aplicar filtros: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
+
 }

@@ -1,6 +1,6 @@
 package com.vsantamaria.proyectofinal.database.models
 
 data class Genre(
-    val nameEnglish: String,
+    val name: String,
     val nameSpanish: String
 )

@@ -40,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,7 +65,6 @@ import com.vsantamaria.proyectofinal.ui.viewmodels.MainScreenViewModel
 fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
     /// Crear el GamesRepository
     val gamesRepository = GamesRepository(Client.retrofit.create(RawgApiService::class.java))
-    val scope = rememberCoroutineScope()
     var userLoggedIn by remember { mutableStateOf(false) }
     val factory = MainScreenViewModelFactory(gamesRepository) /// Se crea el Factory para el ViewModel
     val viewModel: MainScreenViewModel = viewModel(factory = factory) /// Se crea el ViewModel con el Factory
@@ -171,7 +169,8 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                 value = selectedGenre?.nameSpanish ?: "Seleccionar",
                                 onValueChange = {},
                                 modifier = Modifier
-                                    .fillMaxWidth(0.5f),
+                                    .fillMaxWidth(0.48f)
+                                    .menuAnchor(),///NO TOCAR
                                 label = { Text("Género") },
                                 readOnly = true,
                                 trailingIcon = {
@@ -186,7 +185,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                     DropdownMenuItem(
                                         onClick = {
                                             selectedGenre = genre
-                                            genreQuery = genre.nameEnglish
+                                            genreQuery = genre.name
                                             genreExpanded = false
                                         },
                                         text = { Text(genre.nameSpanish) }
@@ -203,7 +202,8 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                 value = selectedTag?.nameSpanish ?: "Seleccionar",
                                 onValueChange = {},
                                 modifier = Modifier
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .menuAnchor(), ///NO TOCAR
                                 label = { Text("Etiqueta") },
                                 readOnly = true,
                                 trailingIcon = {
@@ -218,7 +218,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                     DropdownMenuItem(
                                         onClick = {
                                             selectedTag = tag
-                                            tagsQuery = tag.nameEnglish
+                                            tagsQuery = tag.name
                                             tagExpanded = false
                                         },
                                         text = { Text(tag.nameSpanish) }
@@ -232,6 +232,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
 
                     Button(
                         onClick = {
+                            page=1
                             viewModel.filterGamesByAll(
                                 search = searchQuery.ifEmpty { null },
                                 genre = genreQuery.ifEmpty { null },
@@ -289,7 +290,13 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                             onClick = {
                                 if (page > 1) {
                                     page -= 1
-                                    viewModel.fetchGames(page, pageSize)
+                                    viewModel.filterGamesByAll(
+                                        search = searchQuery.ifEmpty { null },
+                                        genre = genreQuery.ifEmpty { null },
+                                        tags = tagsQuery.ifEmpty { null },
+                                        page = page,
+                                        pageSize = pageSize
+                                    )
                                 }
                             },
                             enabled = page > 1,
@@ -316,8 +323,15 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                         Button(
                             onClick = {
                                 page += 1
-                                viewModel.fetchGames(page, pageSize)
+                                viewModel.filterGamesByAll(
+                                    search = searchQuery.ifEmpty { null },
+                                    genre = genreQuery.ifEmpty { null },
+                                    tags = tagsQuery.ifEmpty { null },
+                                    page = page,
+                                    pageSize = pageSize
+                                )
                             },
+                            enabled = pageSize == games.size,
                             contentPadding = PaddingValues(0.dp),
                             modifier = Modifier.size(40.dp)
                         ) {
@@ -372,7 +386,13 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                                             pageSize = size
                                             selectedPageSize = size.toString()
                                             expanded = false
-                                            viewModel.fetchGames(page, pageSize)
+                                            viewModel.filterGamesByAll(
+                                                search = searchQuery.ifEmpty { null },
+                                                genre = genreQuery.ifEmpty { null },
+                                                tags = tagsQuery.ifEmpty { null },
+                                                page = page,
+                                                pageSize = pageSize
+                                            )
 
                                         },
                                         text = {

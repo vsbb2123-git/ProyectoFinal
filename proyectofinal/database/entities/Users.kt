@@ -9,5 +9,6 @@ data class Users(
     val username: String,
     val password: String,
     val userType: String, /// "base", "crítico", "desarrollador", "administrador"
-    val currentSession: Boolean = true
+    val currentSession: Boolean = true,
+    val wishList: List<Int> = emptyList()
 )

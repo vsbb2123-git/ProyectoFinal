@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Games(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val titulo: String,
-    val desarrollador: String
+    val desarrollador: String,
+    val background_image: String?
 )

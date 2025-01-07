@@ -1,9 +1,11 @@
 package com.vsantamaria.proyectofinal.database
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import android.content.Context
+import androidx.room.TypeConverters
+import com.vsantamaria.proyectofinal.database.converters.Converter
 import com.vsantamaria.proyectofinal.database.daos.CommentsDAO
 import com.vsantamaria.proyectofinal.database.daos.GamesDAO
 import com.vsantamaria.proyectofinal.database.daos.UsersDAO
@@ -13,8 +15,9 @@ import com.vsantamaria.proyectofinal.database.entities.Users
 
 @Database(
     entities = [Users::class, Games::class, Comments::class],
-    version = 1
+    version = 2
 )
+@TypeConverters(Converter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usersDao(): UsersDAO
     abstract fun gamesDao(): GamesDAO
@@ -30,7 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()///lo de fallbackToDestructiveMigration() es para que si se quiere cambiar de "version" de la base de datos, borre la database y no de erroeres
                 INSTANCE = instance
                 instance
             }

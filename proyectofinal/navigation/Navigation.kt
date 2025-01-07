@@ -9,13 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.vsantamaria.proyectofinal.api.Client
-import com.vsantamaria.proyectofinal.database.daos.UsersDAO
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
 import com.vsantamaria.proyectofinal.ui.screens.GameCardScreen
 import com.vsantamaria.proyectofinal.ui.screens.MainScreen
 import com.vsantamaria.proyectofinal.ui.screens.OnBoarding
 import com.vsantamaria.proyectofinal.ui.screens.SplashScreen
+import com.vsantamaria.proyectofinal.ui.screens.WishListScreen
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -40,6 +40,12 @@ fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel)
             route = Routes.MainScreen.route
         ) {
             MainScreen(navController, usersViewModel)
+        }
+
+        composable(
+            route = Routes.WishListScreen.route
+        ) {
+            WishListScreen(navController, usersViewModel)
         }
 
         composable(
