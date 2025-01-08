@@ -29,15 +29,21 @@ class CommentsViewModel(private val commentsDao: CommentsDAO) : ViewModel() {
         }
     }
 
-    fun insertComment(comment: Comments) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun insertComment(comment: Comments): Long {
+        return runBlocking(Dispatchers.IO) {
             commentsDao.insertComment(comment)
         }
     }
 
-    fun deleteComment(commentId: Int) {
+    fun deleteCommentById(commentId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             commentsDao.deleteCommentById(commentId)
+        }
+    }
+
+    fun deleteCommentsByUserId(userId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            commentsDao.deleteCommentByUserId(userId)
         }
     }
 }

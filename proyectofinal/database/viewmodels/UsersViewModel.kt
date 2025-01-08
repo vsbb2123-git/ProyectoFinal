@@ -100,8 +100,14 @@ class UsersViewModel(private val usersDao: UsersDAO) : ViewModel(){
         }
     }
 
-    fun deleteUser(id: Int) {
-        viewModelScope.launch {
+    fun getUserById(userId: Int): Users? {
+        return runBlocking(Dispatchers.IO) {
+            usersDao.getUserById(userId)
+        }
+    }
+
+    fun deleteUserById(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
             usersDao.deleteUserById(id)
         }
     }

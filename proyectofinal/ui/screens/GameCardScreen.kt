@@ -1,5 +1,7 @@
 package com.vsantamaria.proyectofinal.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,11 +12,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -35,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -47,6 +52,7 @@ import com.vsantamaria.proyectofinal.database.models.Screenshot
 import com.vsantamaria.proyectofinal.database.viewmodels.CommentsViewModel
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
+import com.vsantamaria.proyectofinal.ui.components.CommentCard
 import com.vsantamaria.proyectofinal.ui.components.MyScaffold
 import com.vsantamaria.proyectofinal.ui.components.PopUpLogin
 import kotlinx.coroutines.launch
@@ -118,7 +124,7 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
     var hasCommented by remember { mutableStateOf(false) }
     var isThisGameDeveloper by remember { mutableStateOf(false) }
     var isDeveloper by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
     if (currentUser != null) {
         isDeveloper = currentUser.userType == "Desarrollador"
         isThisGameDeveloper = game.developers?.any { it.name == currentUser.username } == true
@@ -141,6 +147,12 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
             scope.launch {
                 translatedTags = translateText(game.tags.joinToString(", ") { it.name })
             }
+        }
+    }
+
+    LaunchedEffect(game.id) {
+        scope.launch {
+            comments.value = commentsViewModel.getCommentsByGame(game.id)
         }
     }
 
@@ -270,24 +282,42 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Button(///boton lista de deseados
-                onClick = {
-                    if (currentUser != null) {
-                        scope.launch {
-                            if (isInWishList.value) {
-                                usersViewModel.removeFromWishList(currentUser.id, game.id)
-                            } else {
-                                usersViewModel.addToWishList(currentUser.id, game.id)
+            Row(modifier = Modifier.fillMaxWidth()){
+                Button(///boton lista de favoritos
+                    onClick = {
+                        if (currentUser != null) {
+                            scope.launch {
+                                if (isInWishList.value) {
+                                    usersViewModel.removeFromWishList(currentUser.id, game.id)
+                                } else {
+                                    usersViewModel.addToWishList(currentUser.id, game.id)
+                                }
+                                isInWishList.value = !isInWishList.value  ///no se puede poner !isInWishList.value
                             }
-                            isInWishList.value = !isInWishList.value  ///no se puede poner !isInWishList.value
+                        }else{
+                            showPopUp = true
                         }
-                    }else{
-                        showPopUp = true
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (isInWishList.value) "Quitar juego de la lista de deseados" else "Añadir  juego a la lista de deseados")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .fillMaxHeight()
+                ) {
+                    Text(if (isInWishList.value) "Quitar de favoritos" else "Añadir a favoritos")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        val query = Uri.encode(game.name)
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.allkeyshop.com/blog/products/?search_name=$query"))
+
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text("Pagina de compra")
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -295,7 +325,7 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
             if (currentUser == null) {///crear/guardar comentarios
                 Text("Inicia sesión para comentar", style = MaterialTheme.typography.bodyLarge)
             } else if(hasCommented){
-                Text("Ya has escrito un comentario para este juego.", style = MaterialTheme.typography.bodyLarge)
+                Text("Solo se puede scribir un comentario por usuario.", style = MaterialTheme.typography.bodyLarge)
             } else if(isDeveloper && !isThisGameDeveloper ){
                 Text("No puedes comentar en este juego porque no eres uno de sus desarrolladores.", style = MaterialTheme.typography.bodyLarge)
             }else {
@@ -314,9 +344,20 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
                                     idGame = game.id,
                                     text = commentText
                                 )
-                                commentsViewModel.insertComment(newComment)
-                                comments.value = commentsViewModel.getCommentsByGame(game.id)
+                                val insertedId = commentsViewModel.insertComment(newComment)
+
                                 commentText = ""
+
+                                val commentToInsert = FullComment(///comentario que se va a insertar en la lista comments hasta que se actualize la pantalla
+                                    id = insertedId.toInt(),
+                                    idUser = newComment.idUser,
+                                    idGame = newComment.idGame,
+                                    text = newComment.text,
+                                    date = System.currentTimeMillis(),
+                                    username = currentUser.username
+                                )
+                                comments.value += commentToInsert
+
                             }
                             hasCommented=true
                         }
@@ -326,7 +367,32 @@ fun GameDetails(game: Game, currentUser: Users?, usersViewModel: UsersViewModel,
                     Text("Guardar comentario")
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
 
+            if (comments.value.isEmpty()) {///mostrar comentarios
+                Text(
+                    text = "No hay comentarios aún.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            } else {
+                comments.value.forEach { comment ->
+                    val commentUser = usersViewModel.getUserById(comment.idUser) ///el usuario del comentario
+                    if (commentUser != null) {
+                        CommentCard(
+                            comment = comment,
+                            user = commentUser,
+                            currentUser = currentUser,
+                            onRemove = { commentToDelete ->
+                                scope.launch {
+                                    commentsViewModel.deleteCommentById(commentToDelete.id) ///se borra de la base de datos
+                                    comments.value = comments.value.filter { it.id != commentToDelete.id }///se borra de la lista
+                                    hasCommented=false
+                                }
+                            }
+                        )
+                    }
+                }
+            }
 
         }
 

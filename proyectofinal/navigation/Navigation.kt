@@ -12,6 +12,7 @@ import com.vsantamaria.proyectofinal.api.Client
 import com.vsantamaria.proyectofinal.database.viewmodels.CommentsViewModel
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.repository.GamesRepository
+import com.vsantamaria.proyectofinal.ui.screens.AccountScreen
 import com.vsantamaria.proyectofinal.ui.screens.GameCardScreen
 import com.vsantamaria.proyectofinal.ui.screens.MainScreen
 import com.vsantamaria.proyectofinal.ui.screens.OnBoarding
@@ -47,6 +48,12 @@ fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel,
             route = Routes.WishListScreen.route
         ) {
             WishListScreen(navController, usersViewModel)
+        }
+
+        composable(
+            route = Routes.AccountScreen.route
+        ) {
+            AccountScreen(navController, usersViewModel, commentsViewModel)
         }
 
         composable(

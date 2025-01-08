@@ -51,7 +51,7 @@ fun WishListScreen(
     usersViewModel: UsersViewModel
 ) {
     val gamesRepository = GamesRepository(Client.retrofit.create(RawgApiService::class.java))
-    val factory = WishListScreenViewModelFactory(gamesRepository) /// Se crea el Factory para el ViewModel
+    val factory = WishListScreenViewModelFactory(gamesRepository)
     val viewModel: WishListScreenViewModel = viewModel(factory = factory)
     val currentUser by usersViewModel.getCurrentUser().observeAsState()
     val isLoading by viewModel.isLoading.observeAsState(false)

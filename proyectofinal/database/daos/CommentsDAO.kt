@@ -9,7 +9,7 @@ import com.vsantamaria.proyectofinal.database.models.FullComment
 @Dao
 interface CommentsDAO {
     @Insert
-    fun insertComment(comment: Comments)
+    fun insertComment(comment: Comments): Long
 
     @Query("""
         SELECT comments.id, 
@@ -46,4 +46,7 @@ interface CommentsDAO {
 
     @Query("DELETE FROM comments WHERE id = :id")
     fun deleteCommentById(id: Int)
+
+    @Query("DELETE FROM comments WHERE idUser = :userId")
+    fun deleteCommentByUserId(userId: Int)
 }

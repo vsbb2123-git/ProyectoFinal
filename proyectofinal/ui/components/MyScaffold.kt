@@ -39,7 +39,6 @@ import com.vsantamaria.proyectofinal.navigation.Routes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScaffold(
-    modifier: Modifier = Modifier,
     title: String,
     navController: NavController,
     usersViewModel: UsersViewModel,
@@ -126,14 +125,19 @@ fun MyScaffold(
                                 }
                             )
                         }
-
-                        DropdownMenuItem(
-                            text = { Text("Cuenta") },
-                            onClick = {
-                                navController.popBackStack()
-//                                navController.navigate(Routes.AccountScreen.route)
-                            }
-                        )
+                        if(title!="Informacion de la cuenta") {
+                            DropdownMenuItem(
+                                text = { Text("Cuenta") },
+                                onClick = {
+                                    if (logged) {
+                                        navController.popBackStack()
+                                        navController.navigate(Routes.AccountScreen.route)
+                                    }else {
+                                        showPopUp = true
+                                    }
+                                }
+                            )
+                        }
                         if(title!="Juegos favoritos") {
                             DropdownMenuItem(
                                 text = { Text("Lista de favoritos") },
