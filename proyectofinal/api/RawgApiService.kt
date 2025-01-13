@@ -9,8 +9,6 @@ import retrofit2.http.Query
 
 interface RawgApiService {
 
-    ///para la pagina principal
-
     @GET("games")
     suspend fun getGames(
         @Query("page") page: Int, /// la pagina de la que pilla los juegos (1ª:1-20, 2ª:21-40)
@@ -20,7 +18,7 @@ interface RawgApiService {
         @Query("tags") tags: String? = null
     ): GamesResponse
 
-    ///para los detalles
+
     @GET("games/{id}")
     suspend fun getGameDetails(
         @Path("id") id: String

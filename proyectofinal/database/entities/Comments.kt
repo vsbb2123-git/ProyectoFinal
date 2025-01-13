@@ -17,6 +17,7 @@ import androidx.room.PrimaryKey
         )
     ]
 )
+
 data class Comments(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val idUser: Int,

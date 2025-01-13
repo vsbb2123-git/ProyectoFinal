@@ -30,8 +30,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.vsantamaria.proyectofinal.R
 import com.vsantamaria.proyectofinal.database.models.FullComment
 import com.vsantamaria.proyectofinal.database.viewmodels.CommentsViewModel
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
@@ -54,7 +56,7 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
 
     if (currentUser == null) {/// Si o si tiene que estar cargado el usuario
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Cargando detalles del usuario...")
+            Text(stringResource(R.string.cargando_detalles_del_usuario))
         }
         return /// no deja que "avance" la pantalla hasta que no se deje de cumplir el if
     }
@@ -68,8 +70,8 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
     if (showPopUp) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text(text = "Estás a punto de eliminar completamente tu cuenta") },
-            text = { Text(text = "Estas seguro?") },
+            title = { Text(text = stringResource(R.string.est_s_a_punto_de_eliminar_completamente_tu_cuenta)) },
+            text = { Text(text = stringResource(R.string.estas_seguro)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -84,14 +86,14 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Borrar",color = MaterialTheme.colorScheme.onError)
+                    Text(stringResource(R.string.borrar),color = MaterialTheme.colorScheme.onError)
                 }
             },
             dismissButton = {
                 Button(
                     onClick = {showPopUp=false}
                 ) {
-                    Text("Volver")
+                    Text(stringResource(R.string.volver))
                 }
             }
         )
@@ -114,7 +116,7 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = "Nombre de usuario: ${currentUser!!.username}",
+                    text = stringResource(R.string.nombre_de_usuario, currentUser!!.username),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
@@ -125,7 +127,11 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
                     val censoredPassword =
                         "*".repeat(currentUser!!.password.length) ///repite "*" por cada letra de la contraseña
                     Text(
-                        text = if (passwordVisible) "Contraseña: ${currentUser!!.password}" else "Contraseña: $censoredPassword", ///no se puede utilizar el passwordvisualtransformation en un text
+                        text = if (passwordVisible) stringResource(
+                            R.string.contrase_a,
+                            currentUser!!.password
+                        ) else stringResource(
+                            R.string.contrase_a, censoredPassword), ///no se puede utilizar el passwordvisualtransformation en un text
                         style = MaterialTheme.typography.bodyLarge
                     )
                     IconButton(
@@ -139,7 +145,7 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
                     ) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = "Mostrar contraseña"
+                            contentDescription = stringResource(R.string.mostrar_contrase_a)
                         )
                     }
 
@@ -147,24 +153,27 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
 
                 if (wishlistCount.value == 0) {///wishlist
                     Text(
-                        text = "No tienes ningun juego en tu lista de favoritos",
+                        text = stringResource(R.string.no_tienes_ningun_juego_en_tu_lista_de_favoritos),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 } else {
                     Text(
-                        text = "Juegos en tu lista de favoritos: ${wishlistCount.value}",
+                        text = stringResource(
+                            R.string.juegos_en_tu_lista_de_favoritos,
+                            wishlistCount.value
+                        ),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
                 if (comments.value.isEmpty()) {///comentarios
                     Text(
-                        text = "No has hecho ningún comentario aún.",
+                        text = stringResource(R.string.no_has_hecho_ning_n_comentario_a_n),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 } else {
                     Text(
-                        text = "Tus comentarios:",
+                        text = stringResource(R.string.tus_comentarios),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -188,7 +197,7 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
                 Modifier.padding(horizontal = 10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Eliminar cuenta", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onError)
+                Text(stringResource(R.string.eliminar_cuenta), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onError)
             }
 
         }

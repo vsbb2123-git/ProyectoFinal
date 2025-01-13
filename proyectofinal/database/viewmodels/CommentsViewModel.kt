@@ -25,7 +25,7 @@ class CommentsViewModel(private val commentsDao: CommentsDAO) : ViewModel() {
 
     fun hasUserCommentedOnGame(userId: Int, gameId: Int): Boolean {
         return runBlocking(Dispatchers.IO) {
-            commentsDao.hasUserCommentedOnGame(userId, gameId) > 0 ///si el usuario ha comentado, devuelve true
+            commentsDao.hasUserCommentedOnGame(userId, gameId) > 0
         }
     }
 

@@ -29,8 +29,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.vsantamaria.proyectofinal.R
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.navigation.Routes
 
@@ -46,7 +47,6 @@ fun MyScaffold(
 ) {
     var showDDMenu by rememberSaveable { mutableStateOf(false) }
     var logged by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
     val currentUser by usersViewModel.getCurrentUser().observeAsState()
     var showPopUp by remember { mutableStateOf(false) }
 
@@ -72,7 +72,7 @@ fun MyScaffold(
                         modifier = Modifier.fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if(title!="Lista de Juegos"){
+                        if(title!= stringResource(R.string.lista_de_juegos)){
                             IconButton(
                                 onClick = {
                                     navController.popBackStack()
@@ -105,7 +105,7 @@ fun MyScaffold(
 
                         if (logged) {
                             DropdownMenuItem(
-                                text = { Text("Cerrar Sesión") },///asigna 0 al currentSession del user, cerrandole la sesion y vuelve a la pantalla principal
+                                text = { Text(stringResource(R.string.cerrar_sesi_n)) },///asigna 0 al currentSession del user, cerrandole la sesion y vuelve a la pantalla principal
                                 onClick = {
                                     currentUser?.let { user ->
                                         usersViewModel.logout(user.id)
@@ -117,7 +117,7 @@ fun MyScaffold(
                             )
                         } else {
                             DropdownMenuItem(
-                                text = {Text("Iniciar Sesión / Registrarse")},
+                                text = {Text(stringResource(R.string.iniciar_sesi_n_registrarse))},
                                 onClick = {
                                     showDDMenu = false
                                     navController.navigate(Routes.OnBoarding.route)
@@ -125,9 +125,9 @@ fun MyScaffold(
                                 }
                             )
                         }
-                        if(title!="Informacion de la cuenta") {
+                        if(title!= stringResource(R.string.informacion_de_la_cuenta)) {
                             DropdownMenuItem(
-                                text = { Text("Cuenta") },
+                                text = { Text(stringResource(R.string.cuenta)) },
                                 onClick = {
                                     if (logged) {
                                         navController.popBackStack()
@@ -138,9 +138,9 @@ fun MyScaffold(
                                 }
                             )
                         }
-                        if(title!="Juegos favoritos") {
+                        if(title!= stringResource(R.string.juegos_favoritos)) {
                             DropdownMenuItem(
-                                text = { Text("Lista de favoritos") },
+                                text = { Text(stringResource(R.string.lista_de_favoritos)) },
                                 onClick = {
                                     if (logged) {
                                         navController.popBackStack()

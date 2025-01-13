@@ -8,7 +8,7 @@ data class Users(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val username: String,
     val password: String,
-    val userType: String, /// "base", "crítico", "desarrollador", "administrador"
+    val userType: String, /// "base", "crítico", "desarrollador"
     val currentSession: Boolean = true,
     val wishList: List<Int> = emptyList()
 )

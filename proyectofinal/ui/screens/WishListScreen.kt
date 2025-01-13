@@ -31,10 +31,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.vsantamaria.proyectofinal.R
 import com.vsantamaria.proyectofinal.api.Client
 import com.vsantamaria.proyectofinal.api.RawgApiService
 import com.vsantamaria.proyectofinal.database.models.Game
@@ -71,7 +73,7 @@ fun WishListScreen(
     }
 
     MyScaffold(
-        title = "Juegos favoritos",
+        title = stringResource(R.string.juegos_favoritos1),
         navController = navController,
         usersViewModel = usersViewModel
     ) {
@@ -82,7 +84,7 @@ fun WishListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Cargando...",
+                    text = stringResource(R.string.cargando1),
                     style = MaterialTheme.typography.headlineLarge
                 )
             }
@@ -96,7 +98,7 @@ fun WishListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "Tu lista de favoritos está vacía",
+                    stringResource(R.string.tu_lista_de_favoritos_est_vac_a),
                     style = MaterialTheme.typography.headlineSmall
                 )
             }
@@ -147,7 +149,7 @@ fun WishListGameCard(game: Game, onClick: () -> Unit, onRemove: () -> Unit) {
                     Text(text = game.name, style = MaterialTheme.typography.titleLarge)
                     game.released?.let {
                         Text(
-                            text = "Lanzamiento: $it",
+                            text = stringResource(R.string.lanzamiento, it),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }

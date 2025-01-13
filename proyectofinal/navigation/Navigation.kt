@@ -19,7 +19,7 @@ import com.vsantamaria.proyectofinal.ui.screens.OnBoarding
 import com.vsantamaria.proyectofinal.ui.screens.SplashScreen
 import com.vsantamaria.proyectofinal.ui.screens.WishListScreen
 
-@RequiresApi(Build.VERSION_CODES.P)
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun Navigation(navController: NavHostController, usersViewModel: UsersViewModel, commentsViewModel: CommentsViewModel) {
     NavHost(

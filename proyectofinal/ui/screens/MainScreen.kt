@@ -44,11 +44,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.vsantamaria.proyectofinal.R
 import com.vsantamaria.proyectofinal.api.Client
 import com.vsantamaria.proyectofinal.api.RawgApiService
 import com.vsantamaria.proyectofinal.database.models.Game
@@ -121,7 +123,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
     }
 
     MyScaffold(
-        title = "Lista de Juegos", /// nombre pendiente de cambio
+        title = stringResource(R.string.lista_de_juegos), /// nombre pendiente de cambio
         navController = navController, /// se pasa al scaffold si el usuario está logueado o no, cambiar por logged.value despues de las pruebasusers
         usersViewModel = usersViewModel
     ) {
@@ -133,14 +135,17 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                Text(if (searchExpanded) "Ocultar Búsqueda" else "Mostrar Búsqueda")
+                Text(if (searchExpanded) stringResource(R.string.ocultar_b_squeda) else stringResource(
+                    R.string.mostrar_b_squeda
+                )
+                )
             }
 
             if (searchExpanded) {
                 Column(
                     modifier = Modifier
                         .padding(10.dp)
-                        .fillMaxHeight( 0.38f),
+                        .fillMaxHeight(0.38f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     OutlinedTextField(
@@ -149,7 +154,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp),
-                        label = { Text("Buscar por nombre") },
+                        label = { Text(stringResource(R.string.buscar_por_nombre)) },
                         singleLine = true
                     )
 
@@ -166,12 +171,12 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                             onExpandedChange = { genreExpanded = !genreExpanded }
                         ) {
                             OutlinedTextField(
-                                value = selectedGenre?.nameSpanish ?: "Seleccionar",
+                                value = selectedGenre?.nameSpanish ?: stringResource(R.string.seleccionar),
                                 onValueChange = {},
                                 modifier = Modifier
                                     .fillMaxWidth(0.48f)
                                     .menuAnchor(),///NO TOCAR
-                                label = { Text("Género")},
+                                label = { Text(stringResource(R.string.g_nero))},
                                 readOnly = true,
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = genreExpanded)
@@ -200,12 +205,12 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                             onExpandedChange = { tagExpanded = !tagExpanded }
                         ) {
                             OutlinedTextField(
-                                value = selectedTag?.nameSpanish ?: "Seleccionar",
+                                value = selectedTag?.nameSpanish ?: stringResource(R.string.seleccionar),
                                 onValueChange = {},
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .menuAnchor(), ///NO TOCAR
-                                label = { Text("Etiqueta") },
+                                label = { Text(stringResource(R.string.etiqueta)) },
                                 readOnly = true,
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagExpanded)
@@ -244,7 +249,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                             )
                         },
                     ) {
-                        Text("Buscar")
+                        Text(stringResource(R.string.buscar))
                     }
                 }
             }
@@ -255,7 +260,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Cargando...",
+                        text = stringResource(R.string.cargando),
                         style = MaterialTheme.typography.headlineLarge
                     )
                 }
@@ -268,7 +273,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No se encontraron juegos", style = MaterialTheme.typography.headlineSmall)
+                    Text(stringResource(R.string.no_se_encontraron_juegos), style = MaterialTheme.typography.headlineSmall)
                 }
             } else {
                 Column(
@@ -322,7 +327,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                         Spacer(modifier = Modifier.fillMaxWidth(0.04f))
 
                         Text(
-                            text = "Pág: $page",
+                            text = stringResource(R.string.p_g, page),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
@@ -354,7 +359,7 @@ fun MainScreen(navController: NavController, usersViewModel: UsersViewModel) {
                         Spacer(modifier = Modifier.fillMaxWidth(0.1f))///antes eran 30 dp
 
                         Text(
-                            text = "Juegos por pagina",
+                            text = stringResource(R.string.juegos_por_pagina),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.End,
                             modifier = Modifier
@@ -436,7 +441,7 @@ fun GameCard(game: Game, onClick: () -> Unit) {
             Text(text = game.name, style = MaterialTheme.typography.titleLarge)
             game.released?.let {
                 Text(
-                    text = "Lanzamiento: $it",
+                    text = stringResource(R.string.lanzamiento, it),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }

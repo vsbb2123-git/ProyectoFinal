@@ -38,10 +38,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.vsantamaria.proyectofinal.R
 import com.vsantamaria.proyectofinal.database.viewmodels.UsersViewModel
 import com.vsantamaria.proyectofinal.navigation.Routes
 import kotlinx.coroutines.delay
@@ -73,7 +75,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopAppBar(
-                title = { Text("Inicio de Sesión") },
+                title = { Text(stringResource(R.string.inicio_de_sesi_n)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -102,7 +104,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                         errorMessage = ""
                     }
                 ) {
-                    Text(text = "Iniciar Sesión", modifier = Modifier.padding(16.dp))
+                    Text(text = stringResource(R.string.iniciar_sesi_n), modifier = Modifier.padding(16.dp))
                 }
 
                 Tab(
@@ -116,7 +118,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                     }
 
                 ) {
-                    Text(text = "Registrarse", modifier = Modifier.padding(16.dp))
+                    Text(text = stringResource(R.string.registrarse), modifier = Modifier.padding(16.dp))
                 }
             }
 
@@ -133,7 +135,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                 TextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text(text = "Nombre de Usuario") }
+                    label = { Text(text = stringResource(R.string.nombre_de_usuario_onboarding)) }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -141,7 +143,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                 TextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Contraseña") },
+                    label = { Text(stringResource(R.string.contrase_a_onboarding)) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = {
@@ -165,7 +167,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                 TextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text(text = "Nombre de Usuario") }
+                    label = { Text(text = stringResource(R.string.nombre_de_usuario_onboarding)) }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -173,7 +175,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                 TextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Contraseña") },
+                    label = { Text(stringResource(R.string.contrase_a_onboarding)) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = {
@@ -196,7 +198,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                 TextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirmar Contraseña") },
+                    label = { Text(stringResource(R.string.confirmar_contrase_a)) },
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = {
@@ -223,7 +225,7 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                     OutlinedTextField(
                         value = userType,
                         onValueChange = { },
-                        label = { Text("Tipo de Usuario") },
+                        label = { Text(stringResource(R.string.tipo_de_usuario)) },
                         readOnly = true,
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = openUserType)
@@ -264,7 +266,9 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
                     }
                 }
             }) {
-                if (signUpMode == 0) Text("Iniciar sesion") else Text("Crear cuenta")
+                if (signUpMode == 0) Text(stringResource(R.string.iniciar_sesion)) else Text(
+                    stringResource(R.string.crear_cuenta)
+                )
             }
         }
     }
