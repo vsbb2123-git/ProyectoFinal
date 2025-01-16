@@ -1,0 +1,1 @@
+En este proyecto solamente están los archivos de la carpeta ProyectoFinal, por tanto en caso de que se quiera utilizar, habría que crear un proyecto nuevo con ese nombre y sustituír los archivos de dicho proyecto por los de este repositorio
