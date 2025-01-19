@@ -47,7 +47,7 @@ class MainScreenViewModel(private val gamesRepository: GamesRepository) : ViewMo
         }
     }
 
-    fun searchGames(search: String, page: Int, pageSize: Int) {
+    fun searchGames(search: String, page: Int, pageSize: Int) {///metodos no utilizados
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {

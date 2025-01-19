@@ -30,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).fallbackToDestructiveMigration().build()///lo de fallbackToDestructiveMigration() es para que si se quiere cambiar de "version" de la base de datos, borre la database y no de erroeres
+                ).fallbackToDestructiveMigration().build()///lo de fallbackToDestructiveMigration() es para que si se quiere cambiar de "version" de la base de datos, borre la database y no de errores
                 INSTANCE = instance
                 instance
             }

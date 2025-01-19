@@ -37,7 +37,7 @@ fun SplashScreen(navController: NavController) {
     )
 
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(2000L) /// 1 sec de delay
+        kotlinx.coroutines.delay(2000L) /// 2 secs de delay
         navController.navigate(Routes.MainScreen.route)
     }
 

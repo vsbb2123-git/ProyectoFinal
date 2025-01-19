@@ -515,7 +515,7 @@ fun GameDetailsForPDF( ///version de la pantalla sin botones, con el título del
             style = MaterialTheme.typography.headlineMedium,
         )
 
-//        game.background_image?.let { imageUrl ->///para convertir las imagenes en bitmaps sin hardware
+//        game.background_image?.let { imageUrl ->
 //            var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 //
 //            LaunchedEffect(imageUrl) {

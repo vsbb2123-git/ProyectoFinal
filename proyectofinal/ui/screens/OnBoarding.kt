@@ -75,14 +75,15 @@ fun OnBoarding(navController: NavController, usersViewModel: UsersViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopAppBar(
-                title = { Text(stringResource(R.string.inicio_de_sesi_n)) },
+                title = { Text(stringResource(R.string.inicio_de_sesi_n),color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = "Volver",
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },

@@ -124,8 +124,7 @@ fun AccountScreen(navController: NavController, usersViewModel: UsersViewModel, 
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val censoredPassword =
-                        "*".repeat(currentUser!!.password.length) ///repite "*" por cada letra de la contraseña
+                    val censoredPassword = "*".repeat(currentUser!!.password.length) ///repite "*" por cada letra de la contraseña
                     Text(
                         text = if (passwordVisible) stringResource(
                             R.string.contrase_a,
